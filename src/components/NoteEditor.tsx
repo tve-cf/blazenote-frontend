@@ -41,8 +41,8 @@ export function NoteEditor({
     onNoteChange({ ...note, title, updatedAt: new Date() });
   };
 
-  const handleContentChange = (content: string) => {
-    onNoteChange({ ...note, content, updatedAt: new Date() });
+  const handleContentChange = (description: string) => {
+    onNoteChange({ ...note, description, updatedAt: new Date() });
   };
 
   const handleTranscript = (text: string) => {
@@ -65,11 +65,11 @@ export function NoteEditor({
       
       <TiptapEditor
         ref={editorRef}
-        content={note.content}
+        content={note.description}
         onChange={handleContentChange}
       />
-
-      <AttachmentList attachments={note.attachments} />
+      {/* TODO: temporary disabling this */}
+      {/* <AttachmentList attachments={note.attachments} /> */}
 
       <div className="p-4 border-t border-gray-200">
         <input

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Note } from '../../types';
 import { createContentPreview } from '../../utils/textUtils';
 
@@ -9,7 +8,7 @@ interface NoteCardProps {
 }
 
 export function NoteCard({ note, isSelected, onClick }: NoteCardProps) {
-  const contentPreview = createContentPreview(note.content);
+  const contentPreview = createContentPreview(note.description);
   
   return (
     <div
@@ -25,7 +24,7 @@ export function NoteCard({ note, isSelected, onClick }: NoteCardProps) {
         {contentPreview || 'No content'}
       </p>
       <p className="text-xs text-gray-400 mt-1">
-        {new Date(note.updatedAt).toLocaleDateString()}
+        {note?.updatedAt?.toLocaleDateString()}
       </p>
     </div>
   );
