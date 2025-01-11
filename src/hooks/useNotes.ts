@@ -90,17 +90,26 @@ export function useNotes() {
     deleteNoteFromDB();
   };
 
+  // File upload handled in front end
   const handleFileUpload = useCallback(
     async (files: FileList) => {
       if (!selectedNote) return;
 
       try {
-        const uploadTasks = Array.from(files).map((file) => {
-          return handleFile(file, selectedNote.id);
+        // Iterate over the files and process them
+        const uploadTasks = Array.from(files).map(async (file) => {
+          try {
+            // Handle the upload process
+            await handleFileUploadProcess(file, selectedNote.id);
+          } catch (fileError) {
+            console.error(`Error processing file "${file.name}":`, fileError);
+          }
         });
 
+        // Wait for all files to complete
         await Promise.all(uploadTasks);
 
+        // Update the note after successful uploads
         const updatedNote: Note = {
           ...selectedNote,
           updatedAt: new Date(),
@@ -114,22 +123,7 @@ export function useNotes() {
     [selectedNote]
   );
 
-  const handleFile = async (file: File, noteId: string) => {
-    try {
-      // Get pre-signed URL
-      const { key, url } = await getPreSignedUrl(file);
-      if (!url) throw new Error(`No URL received for ${file.name}`);
-
-      // Upload the file to the pre-signed URL
-      await uploadFileToUrl(url, file);
-
-      // Save file metadata to the database
-      await saveFileMetadata(noteId, key);
-    } catch (fileError) {
-      console.error(`Error processing file ${file.name}:`, fileError);
-    }
-  };
-
+  // Get pre-signed url
   const getPreSignedUrl = async (file: File) => {
     const response = await fetch(`${BASE_URL}/files/pre-signed-url`, {
       method: "POST",
@@ -147,7 +141,27 @@ export function useNotes() {
     return await response.json();
   };
 
-  const uploadFileToUrl = async (url: string, file: File) => {
+  // Handle the upload process
+  const handleFileUploadProcess = async (
+    file: File,
+    noteId: string
+  ): Promise<void> => {
+    // Get pre-signed URL
+    const { key, url } = await getPreSignedUrl(file);
+
+    if (!url || !key) {
+      throw new Error(`Invalid response for file: ${file.name}`);
+    }
+
+    // Upload file to the pre-signed URL
+    await uploadFileToUrl(url, file);
+
+    // Save file metadata to the database
+    await saveFileMetadata(noteId, key);
+  };
+
+  // Upload file using pre-signed URL
+  const uploadFileToUrl = async (url: string, file: File): Promise<void> => {
     const uploadResponse = await fetch(url, {
       method: "PUT",
       headers: { "Content-Type": file.type },
@@ -155,12 +169,16 @@ export function useNotes() {
     });
 
     if (!uploadResponse.ok) {
-      throw new Error(`Failed to upload file ${file.name}`);
+      throw new Error(`Failed to upload file: ${file.name}`);
     }
   };
 
-  const saveFileMetadata = async (noteId: string, key: string) => {
-    const saveFileResponse = await fetch(`${BASE_URL}/files/save`, {
+  // Save file metadata to the db
+  const saveFileMetadata = async (
+    noteId: string,
+    key: string
+  ): Promise<void> => {
+    const metadataResponse = await fetch(`${BASE_URL}/files/save`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -169,8 +187,8 @@ export function useNotes() {
       }),
     });
 
-    if (!saveFileResponse.ok) {
-      throw new Error(`Failed to save file data`);
+    if (!metadataResponse.ok) {
+      throw new Error(`Failed to save metadata for file`);
     }
   };
 
