@@ -91,9 +91,6 @@ export function useNotes() {
   };
 
   // File upload handled in front end
-  //
-  // TO DO - Modularize those calls
-  //
   const handleFileUpload = useCallback(
     async (files: FileList) => {
       if (!selectedNote) return;
@@ -102,54 +99,8 @@ export function useNotes() {
         // Iterate over the files and process them
         const uploadTasks = Array.from(files).map(async (file) => {
           try {
-            // Get pre-signed URL
-            const preSignedResponse = await fetch(
-              `${BASE_URL}/files/pre-signed-url`,
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  fileName: file.name,
-                  fileType: file.type,
-                }),
-              }
-            );
-
-            if (!preSignedResponse.ok) {
-              throw new Error(
-                `Failed to get pre-signed URL for file: ${file.name}`
-              );
-            }
-
-            const { key, url } = await preSignedResponse.json();
-            if (!url || !key) {
-              throw new Error(`Invalid response for file: ${file.name}`);
-            }
-
-            // Upload file to the pre-signed URL
-            const uploadResponse = await fetch(url, {
-              method: "PUT",
-              headers: { "Content-Type": file.type },
-              body: file,
-            });
-
-            if (!uploadResponse.ok) {
-              throw new Error(`Failed to upload file: ${file.name}`);
-            }
-
-            // Save file metadata to the database
-            const metadataResponse = await fetch(`${BASE_URL}/files/save`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                noteId: selectedNote.id,
-                objectKey: key,
-              }),
-            });
-
-            if (!metadataResponse.ok) {
-              throw new Error(`Failed to save metadata for file: ${file.name}`);
-            }
+            // Handle the upload process
+            await handleFileUploadProcess(file, selectedNote.id);
           } catch (fileError) {
             console.error(`Error processing file "${file.name}":`, fileError);
           }
@@ -171,6 +122,75 @@ export function useNotes() {
     },
     [selectedNote]
   );
+
+  // Get pre-signed url
+  const getPreSignedUrl = async (file: File) => {
+    const response = await fetch(`${BASE_URL}/files/pre-signed-url`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fileName: file.name,
+        fileType: file.type,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to get pre-signed URL for ${file.name}`);
+    }
+
+    return await response.json();
+  };
+
+  // Handle the upload process
+  const handleFileUploadProcess = async (
+    file: File,
+    noteId: string
+  ): Promise<void> => {
+    // Get pre-signed URL
+    const { key, url } = await getPreSignedUrl(file);
+
+    if (!url || !key) {
+      throw new Error(`Invalid response for file: ${file.name}`);
+    }
+
+    // Upload file to the pre-signed URL
+    await uploadFileToUrl(url, file);
+
+    // Save file metadata to the database
+    await saveFileMetadata(noteId, key);
+  };
+
+  // Upload file using pre-signed URL
+  const uploadFileToUrl = async (url: string, file: File): Promise<void> => {
+    const uploadResponse = await fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": file.type },
+      body: file,
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error(`Failed to upload file: ${file.name}`);
+    }
+  };
+
+  // Save file metadata to the db
+  const saveFileMetadata = async (
+    noteId: string,
+    key: string
+  ): Promise<void> => {
+    const metadataResponse = await fetch(`${BASE_URL}/files/save`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        noteId,
+        objectKey: key,
+      }),
+    });
+
+    if (!metadataResponse.ok) {
+      throw new Error(`Failed to save metadata for file`);
+    }
+  };
 
   return {
     notes: filteredNotes,
