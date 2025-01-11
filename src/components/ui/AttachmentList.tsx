@@ -1,12 +1,78 @@
-import React from 'react';
-import { Image, Paperclip } from 'lucide-react';
-import { Attachment } from '../../types';
+import React, { useEffect, useState } from "react";
+import { Image, Paperclip } from "lucide-react";
+import { Attachment } from "../../types";
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 interface AttachmentListProps {
-  attachments: Attachment[];
+  noteId: string;
 }
 
-export function AttachmentList({ attachments }: AttachmentListProps) {
+export function AttachmentList({ noteId }: AttachmentListProps) {
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchPreSignedUrl = async (fileName: string): Promise<string | null> => {
+    try {
+      // Encode the fileName to ensure special characters are safely included in the URL
+      const encodedFileName = encodeURIComponent(fileName);
+      const response = await fetch(`${BASE_URL}/files/pre-signed-url/${encodedFileName}`, {
+        method: "GET",
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch pre-signed URL for ${fileName}`);
+      }
+      const data = await response.json();
+      return data.url || null;
+    } catch (err) {
+      console.error(`Error fetching pre-signed URL for ${fileName}:`, err);
+      return null;
+    }
+  };
+  
+
+  useEffect(() => {
+    const fetchAttachments = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(`${BASE_URL}/files/list/${noteId}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch attachments for note ID ${noteId}`);
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          const fetchedAttachments: Attachment[] = await Promise.all(
+            data.names.map(async (file: { id: string; name: string }) => {
+              const url = await fetchPreSignedUrl(file.name);
+              return {
+                id: file.id,
+                name: file.name,
+                url: url || "",
+                type: "application/octet-stream", // Might need to adjust this based on file
+              };
+            })
+          );
+
+          setAttachments(fetchedAttachments);
+        } else {
+          setError("Failed to fetch attachment data");
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAttachments();
+  }, [noteId]);
+
+  if (loading) return <p>Loading attachments...</p>;
+  if (error) return <p>Error: {error}</p>;
   if (attachments.length === 0) return null;
 
   return (
@@ -21,7 +87,7 @@ export function AttachmentList({ attachments }: AttachmentListProps) {
             rel="noopener noreferrer"
             className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg text-sm text-gray-700 hover:bg-gray-100"
           >
-            {attachment.type.startsWith('image/') ? (
+            {attachment.type.startsWith("image/") ? (
               <Image className="h-4 w-4" />
             ) : (
               <Paperclip className="h-4 w-4" />

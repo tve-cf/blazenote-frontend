@@ -68,8 +68,8 @@ export function NoteEditor({
         content={note.description}
         onChange={handleContentChange}
       />
-      {/* TODO: temporary disabling this */}
-      {/* <AttachmentList attachments={note.attachments} /> */}
+
+      <AttachmentList noteId={note.id} />
 
       <div className="p-4 border-t border-gray-200">
         <input
