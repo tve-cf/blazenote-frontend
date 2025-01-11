@@ -90,17 +90,75 @@ export function useNotes() {
     deleteNoteFromDB();
   };
 
+  // File upload handled in front end
+  //
+  // TO DO - Modularize those calls
+  //
   const handleFileUpload = useCallback(
     async (files: FileList) => {
       if (!selectedNote) return;
 
       try {
-        const uploadTasks = Array.from(files).map((file) => {
-          return handleFile(file, selectedNote.id);
+        // Iterate over the files and process them
+        const uploadTasks = Array.from(files).map(async (file) => {
+          try {
+            // Get pre-signed URL
+            const preSignedResponse = await fetch(
+              `${BASE_URL}/files/pre-signed-url`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  fileName: file.name,
+                  fileType: file.type,
+                }),
+              }
+            );
+
+            if (!preSignedResponse.ok) {
+              throw new Error(
+                `Failed to get pre-signed URL for file: ${file.name}`
+              );
+            }
+
+            const { key, url } = await preSignedResponse.json();
+            if (!url || !key) {
+              throw new Error(`Invalid response for file: ${file.name}`);
+            }
+
+            // Upload file to the pre-signed URL
+            const uploadResponse = await fetch(url, {
+              method: "PUT",
+              headers: { "Content-Type": file.type },
+              body: file,
+            });
+
+            if (!uploadResponse.ok) {
+              throw new Error(`Failed to upload file: ${file.name}`);
+            }
+
+            // Save file metadata to the database
+            const metadataResponse = await fetch(`${BASE_URL}/files/save`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                noteId: selectedNote.id,
+                objectKey: key,
+              }),
+            });
+
+            if (!metadataResponse.ok) {
+              throw new Error(`Failed to save metadata for file: ${file.name}`);
+            }
+          } catch (fileError) {
+            console.error(`Error processing file "${file.name}":`, fileError);
+          }
         });
 
+        // Wait for all files to complete
         await Promise.all(uploadTasks);
 
+        // Update the note after successful uploads
         const updatedNote: Note = {
           ...selectedNote,
           updatedAt: new Date(),
@@ -113,66 +171,6 @@ export function useNotes() {
     },
     [selectedNote]
   );
-
-  const handleFile = async (file: File, noteId: string) => {
-    try {
-      // Get pre-signed URL
-      const { key, url } = await getPreSignedUrl(file);
-      if (!url) throw new Error(`No URL received for ${file.name}`);
-
-      // Upload the file to the pre-signed URL
-      await uploadFileToUrl(url, file);
-
-      // Save file metadata to the database
-      await saveFileMetadata(noteId, key);
-    } catch (fileError) {
-      console.error(`Error processing file ${file.name}:`, fileError);
-    }
-  };
-
-  const getPreSignedUrl = async (file: File) => {
-    const response = await fetch(`${BASE_URL}/files/pre-signed-url`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fileName: file.name,
-        fileType: file.type,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to get pre-signed URL for ${file.name}`);
-    }
-
-    return await response.json();
-  };
-
-  const uploadFileToUrl = async (url: string, file: File) => {
-    const uploadResponse = await fetch(url, {
-      method: "PUT",
-      headers: { "Content-Type": file.type },
-      body: file,
-    });
-
-    if (!uploadResponse.ok) {
-      throw new Error(`Failed to upload file ${file.name}`);
-    }
-  };
-
-  const saveFileMetadata = async (noteId: string, key: string) => {
-    const saveFileResponse = await fetch(`${BASE_URL}/files/save`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        noteId,
-        objectKey: key,
-      }),
-    });
-
-    if (!saveFileResponse.ok) {
-      throw new Error(`Failed to save file data`);
-    }
-  };
 
   return {
     notes: filteredNotes,
