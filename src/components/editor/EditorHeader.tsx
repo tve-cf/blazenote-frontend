@@ -1,4 +1,3 @@
-import React from 'react';
 import { ChevronLeft, Trash2 } from 'lucide-react';
 import { VoiceTranscriptionButton } from './VoiceTranscriptionButton';
 

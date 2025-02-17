@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Note, Attachment } from "../types";
+import { Note } from "../types";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 

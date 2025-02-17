@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { ChangeEvent, useRef } from 'react';
 import { Paperclip } from 'lucide-react';
 import { Note } from '../types';
 import { AttachmentList } from './ui/AttachmentList';
@@ -31,7 +31,7 @@ export function NoteEditor({
     );
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       onFileUpload(e.target.files);
     }

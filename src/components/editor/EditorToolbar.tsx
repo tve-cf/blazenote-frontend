@@ -1,4 +1,3 @@
-import React from 'react';
 import { ChevronLeft, Eye, Edit2 } from 'lucide-react';
 
 interface EditorToolbarProps {

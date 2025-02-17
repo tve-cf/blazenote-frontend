@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NoteList } from './components/NoteList';
 import { NoteEditor } from './components/NoteEditor';
 import { useNotes } from './hooks/useNotes';
@@ -37,7 +37,7 @@ function App() {
         isVisible={isSidebarVisible}
       />
       <NoteEditor
-        note={selectedNote}
+        note={selectedNote!}
         onNoteChange={updateNote}
         onFileUpload={handleFileUpload}
         onBackClick={() => setIsSidebarVisible(true)}

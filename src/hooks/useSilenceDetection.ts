@@ -7,7 +7,7 @@ export function useSilenceDetection(
   lastActivity: number,
   onSilence: () => void
 ) {
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<number>();
 
   useEffect(() => {
     if (isListening) {

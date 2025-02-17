@@ -1,4 +1,4 @@
-import { useEditor, EditorContent, Editor } from '@tiptap/react';
+import { useEditor, EditorContent } from '@tiptap/react';
 import { useEffect, forwardRef, useImperativeHandle } from 'react';
 import { EditorToolbar } from './toolbar/EditorToolbar';
 import { useTiptapExtensions } from '../../hooks/useTiptapExtensions';

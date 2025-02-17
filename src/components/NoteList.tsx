@@ -1,4 +1,3 @@
-import React from 'react';
 import { Plus, Menu } from 'lucide-react';
 import { Note } from '../types';
 import { SearchBar } from './ui/SearchBar';

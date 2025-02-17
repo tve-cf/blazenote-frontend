@@ -19,7 +19,6 @@ export function useSpeechRecognition({
     currentText,
     lastActivity,
     updateTranscription,
-    appendPeriod,
     setFinalTranscript
   } = useTranscriptionState();
 
@@ -57,7 +56,7 @@ export function useSpeechRecognition({
     recognition.onresult = (event) => {
       const transcript = Array.from(event.results)
         .slice(event.resultIndex)
-        .map(result => result[0].transcript)
+        .map((result) => result[0].transcript)
         .join(' ')
         .trim();
 

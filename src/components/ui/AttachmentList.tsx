@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Image, Paperclip } from "lucide-react";
 import { Attachment } from "../../types";
 
@@ -62,7 +62,7 @@ export function AttachmentList({ noteId }: AttachmentListProps) {
           setError("Failed to fetch attachment data");
         }
       } catch (err) {
-        setError(err.message);
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
       } finally {
         setLoading(false);
       }

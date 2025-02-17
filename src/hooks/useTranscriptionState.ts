@@ -22,7 +22,7 @@ export function useTranscriptionState() {
   };
 
   const setFinalTranscript = (text: string, callback?: () => void) => {
-    setState(prev => {
+    setState(() => {
       const newState = {
         currentText: '',
         lastActivity: Date.now(),
