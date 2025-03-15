@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { Note } from "../types";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export function useNotes() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -22,6 +22,7 @@ export function useNotes() {
       const notes = await response.json();
       setNotes(notes.length == 0 ? [] : notes);
     };
+    console.log("[Info] API base url: ", BASE_URL)
     // Load notes from DB
     getNotes();
   }, []);
