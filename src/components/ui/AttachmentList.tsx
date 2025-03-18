@@ -59,7 +59,7 @@ export function AttachmentList({ noteId }: AttachmentListProps) {
 
           setAttachments(fetchedAttachments);
         } else {
-          setError("Failed to fetch attachment data");
+          console.log("No attachment found");
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "An unknown error occurred");
