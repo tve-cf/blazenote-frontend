@@ -77,12 +77,7 @@ export function AiDialog({
 
         <div className="p-6">
           {!result && !isLoading && !selectedAction && (
-            <div className="space-y-4">
-              <p className="text-gray-500 text-sm">
-                Select an AI action to process your note:
-              </p>
-              {children}
-            </div>
+            <div className="space-y-4">{children}</div>
           )}
 
           {selectedAction === 'translate' && !result && !isLoading && (

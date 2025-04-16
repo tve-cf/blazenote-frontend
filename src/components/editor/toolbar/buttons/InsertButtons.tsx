@@ -1,6 +1,14 @@
 import { useState } from 'react';
 import { Editor } from '@tiptap/react';
-import { Image, Link, Plus, Sparkles } from 'lucide-react';
+import {
+  Image,
+  Link,
+  Plus,
+  Sparkles,
+  FileText,
+  RefreshCw,
+  Languages
+} from 'lucide-react';
 import { ToolbarButton } from '../ToolbarButton';
 import { AiDialog } from '../../../ui/AiDialog';
 import { useNotes } from '../../../../contexts/NotesContext';
@@ -197,24 +205,35 @@ export function InsertButtons({ editor }: InsertButtonsProps) {
         onToLanguageChange={setToLanguage}
         onTranslate={handleTranslate}
       >
-        <div className="space-y-2">
+        <div className="grid grid-cols-3 gap-4">
           <button
             onClick={() => handleAIAction('summarize')}
-            className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 rounded-lg"
+            className="flex flex-col items-center justify-center p-4 text-gray-700 bg-white border border-gray-100 rounded-lg shadow-sm hover:bg-blue-50 hover:border-blue-200 transition-all"
           >
-            Summarize
+            <div className="bg-blue-100 p-3 rounded-full mb-3">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
+            <span className="font-medium">Summarize</span>
           </button>
+
           <button
             onClick={() => handleAIAction('paraphrase')}
-            className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 rounded-lg"
+            className="flex flex-col items-center justify-center p-4 text-gray-700 bg-white border border-gray-100 rounded-lg shadow-sm hover:bg-blue-50 hover:border-blue-200 transition-all"
           >
-            Paraphrase
+            <div className="bg-blue-100 p-3 rounded-full mb-3">
+              <RefreshCw className="h-5 w-5 text-blue-600" />
+            </div>
+            <span className="font-medium">Paraphrase</span>
           </button>
+
           <button
             onClick={() => handleAIAction('translate')}
-            className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 rounded-lg"
+            className="flex flex-col items-center justify-center p-4 text-gray-700 bg-white border border-gray-100 rounded-lg shadow-sm hover:bg-blue-50 hover:border-blue-200 transition-all"
           >
-            Translate
+            <div className="bg-blue-100 p-3 rounded-full mb-3">
+              <Languages className="h-5 w-5 text-blue-600" />
+            </div>
+            <span className="font-medium">Translate</span>
           </button>
         </div>
       </AiDialog>
