@@ -43,7 +43,7 @@ export function NoteList({
           </button>
           <SearchBar value={searchQuery} onChange={onSearchChange} />
           <button
-            onClick={onNewNote}
+            onClick={() => onNewNote()}
             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
           >
             <Plus className="h-5 w-5" />

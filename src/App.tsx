@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { NoteList } from './components/NoteList';
 import { NoteEditor } from './components/NoteEditor';
-import { useNotes } from './hooks/useNotes';
+import { NotesProvider, useNotes } from './contexts/NotesContext';
 
-function App() {
+function AppContent() {
   const {
     notes,
     selectedNote,
@@ -12,9 +12,6 @@ function App() {
     setSearchQuery,
     setSelectedNoteId,
     createNote,
-    updateNote,
-    deleteNote,
-    handleFileUpload,
   } = useNotes();
 
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
@@ -38,12 +35,17 @@ function App() {
       />
       <NoteEditor
         note={selectedNote!}
-        onNoteChange={updateNote}
-        onFileUpload={handleFileUpload}
         onBackClick={() => setIsSidebarVisible(true)}
-        onDeleteNote={deleteNote}
       />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <NotesProvider>
+      <AppContent />
+    </NotesProvider>
   );
 }
 

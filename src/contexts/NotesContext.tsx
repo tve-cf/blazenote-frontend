@@ -1,17 +1,33 @@
-import { useState, useCallback, useEffect } from "react";
+import React, { createContext, useState, useCallback, useEffect, useContext } from "react";
 import { Note } from "../types";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-export function useNotes() {
+interface NotesContextType {
+  notes: Note[];
+  selectedNote: Note | undefined;
+  selectedNoteId: string | null;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  setSelectedNoteId: (id: string | null) => void;
+  createNote: (title?: string, description?: string) => Promise<void>;
+  updateNote: (updatedNote: Note) => void;
+  deleteNote: (noteId: string) => void;
+  handleFileUpload: (files: FileList) => Promise<void>;
+  refreshNotes: () => Promise<void>;
+}
+
+const NotesContext = createContext<NotesContextType | undefined>(undefined);
+
+export function NotesProvider({ children }: { children: React.ReactNode }) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredNotes = notes.filter(
     (note) =>
-      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      note.description.toLowerCase().includes(searchQuery.toLowerCase())
+      note?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      note?.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const selectedNote = notes.find((note) => note.id === selectedNoteId);
@@ -27,11 +43,18 @@ export function useNotes() {
     getNotes();
   }, []);
 
-  const createNote = () => {
+  // Force reload notes from DB
+  const refreshNotes = async () => {
+    const response = await fetch(`${BASE_URL}/notes`);
+    const notes = await response.json();
+    setNotes(notes.length == 0 ? [] : notes);
+  };
+
+  const createNote = async (title?: string, description?: string) => {
     const newNote: Note = {
       id: crypto.randomUUID(),
-      title: "",
-      description: "",
+      title: title || "",
+      description: description || "",
       attachments: [],
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -40,16 +63,13 @@ export function useNotes() {
     setSelectedNoteId(newNote.id);
 
     // Save new note into DB
-    const saveNoteIntoDB = async () => {
-      await fetch(`${BASE_URL}/notes`, {
-        method: "POST",
-        body: JSON.stringify(newNote),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-      });
-    };
-    saveNoteIntoDB();
+    await fetch(`${BASE_URL}/notes`, {
+      method: "POST",
+      body: JSON.stringify(newNote),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
   };
 
   const updateNote = (updatedNote: Note) => {
@@ -193,7 +213,7 @@ export function useNotes() {
     }
   };
 
-  return {
+  const value = {
     notes: filteredNotes,
     selectedNote,
     selectedNoteId,
@@ -204,5 +224,21 @@ export function useNotes() {
     updateNote,
     deleteNote,
     handleFileUpload,
+    refreshNotes,
   };
+
+  return (
+    <NotesContext.Provider value={value}>
+      {children}
+    </NotesContext.Provider>
+  );
 }
+
+// Custom hook to use the notes context
+export function useNotes() {
+  const context = useContext(NotesContext);
+  if (context === undefined) {
+    throw new Error("useNotes must be used within a NotesProvider");
+  }
+  return context;
+} 

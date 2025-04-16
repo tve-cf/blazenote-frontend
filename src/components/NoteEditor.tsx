@@ -4,22 +4,18 @@ import { Note } from '../types';
 import { AttachmentList } from './ui/AttachmentList';
 import { TiptapEditor } from './editor/TiptapEditor';
 import { EditorHeader } from './editor/EditorHeader';
+import { useNotes } from '../contexts/NotesContext';
 
 interface NoteEditorProps {
   note: Note | null;
-  onNoteChange: (note: Note) => void;
-  onFileUpload: (files: FileList) => void;
   onBackClick: () => void;
-  onDeleteNote: (noteId: string) => void;
 }
 
 export function NoteEditor({
   note,
-  onNoteChange,
-  onFileUpload,
   onBackClick,
-  onDeleteNote,
 }: NoteEditorProps) {
+  const { updateNote, deleteNote, handleFileUpload } = useNotes();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const editorRef = useRef<{ getHTML: () => string } | null>(null);
 
@@ -31,18 +27,18 @@ export function NoteEditor({
     );
   }
 
-  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileUploadChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      onFileUpload(e.target.files);
+      handleFileUpload(e.target.files);
     }
   };
 
   const handleTitleChange = (title: string) => {
-    onNoteChange({ ...note, title, updatedAt: new Date() });
+    updateNote({ ...note, title, updatedAt: new Date() });
   };
 
   const handleContentChange = (description: string) => {
-    onNoteChange({ ...note, description, updatedAt: new Date() });
+    updateNote({ ...note, description, updatedAt: new Date() });
   };
 
   const handleTranscript = (text: string) => {
@@ -59,7 +55,7 @@ export function NoteEditor({
         title={note.title}
         onTitleChange={handleTitleChange}
         onBackClick={onBackClick}
-        onDelete={() => onDeleteNote(note.id)}
+        onDelete={() => deleteNote(note.id)}
         onTranscript={handleTranscript}
       />
       
@@ -76,7 +72,7 @@ export function NoteEditor({
           type="file"
           ref={fileInputRef}
           className="hidden"
-          onChange={handleFileUpload}
+          onChange={handleFileUploadChange}
           multiple
         />
         <button
