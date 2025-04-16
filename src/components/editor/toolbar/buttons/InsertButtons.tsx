@@ -3,11 +3,11 @@ import { Editor } from '@tiptap/react';
 import {
   Image,
   Link,
-  Plus,
   Sparkles,
   FileText,
   RefreshCw,
-  Languages
+  Languages,
+  Tag
 } from 'lucide-react';
 import { ToolbarButton } from '../ToolbarButton';
 import { AiDialog } from '../../../ui/AiDialog';
@@ -24,11 +24,11 @@ export function InsertButtons({ editor }: InsertButtonsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [aiResult, setAiResult] = useState<string | null>(null);
   const [selectedAction, setSelectedAction] = useState<
-    'summarize' | 'paraphrase' | 'translate' | null
+    'summarize' | 'paraphrase' | 'translate' | 'title' | null
   >(null);
   const [fromLanguage, setFromLanguage] = useState('english');
   const [toLanguage, setToLanguage] = useState('spanish');
-  const { createNote } = useNotes();
+  const { createNote, updateNote, selectedNote } = useNotes();
 
   const addImage = () => {
     const url = window.prompt('Enter image URL');
@@ -45,7 +45,7 @@ export function InsertButtons({ editor }: InsertButtonsProps) {
   };
 
   const handleAIAction = async (
-    action: 'summarize' | 'paraphrase' | 'translate'
+    action: 'summarize' | 'paraphrase' | 'translate' | 'title'
   ) => {
     const noteContent = editor.getHTML();
     if (!noteContent) {
@@ -155,6 +155,38 @@ export function InsertButtons({ editor }: InsertButtonsProps) {
     }
   };
 
+  const handleApplyTitle = () => {
+    if (!selectedNote) {
+      alert('No note selected. Please select a note first.');
+      return;
+    }
+
+    if (aiResult) {
+      // Clean the title text by removing HTML tags and any extra whitespace
+      const cleanTitle = aiResult
+        .replace(/<\/?[^>]+(>|$)/g, '') // Remove HTML tags
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .replace(/assistant<|header_end|>/g, '')
+        .replace(/<p>&nbsp;<\/p>/g, '')
+        .replace(/\n/g, '')
+        .replace(/<\|.*?\|>/g, '')
+        .replace(/^.*?\|>/, '')
+        .trim(); // Trim leading/trailing whitespace
+
+      // Update the current note's title with the generated title
+      updateNote({
+        ...selectedNote,
+        title: cleanTitle,
+        updatedAt: new Date()
+      });
+
+      // Close dialog and reset state
+      setIsAIDialogOpen(false);
+      setSelectedAction(null);
+      setAiResult(null);
+    }
+  };
+
   return (
     <>
       <ToolbarButton
@@ -177,13 +209,6 @@ export function InsertButtons({ editor }: InsertButtonsProps) {
         icon={<Sparkles className="w-4 h-4" />}
         tooltip="AI Tools (⌘+L)"
       />
-      <ToolbarButton
-        icon={<Plus className="w-4 h-4" />}
-        onClick={() => {
-          createNote();
-        }}
-        tooltip="Create New Note (⌘+N)"
-      />
 
       <AiDialog
         isOpen={isAIDialogOpen}
@@ -198,6 +223,7 @@ export function InsertButtons({ editor }: InsertButtonsProps) {
         onCopy={handleCopy}
         onInsert={handleInsert}
         onCreateNew={handleCreateNew}
+        onApplyTitle={handleApplyTitle}
         selectedAction={selectedAction}
         fromLanguage={fromLanguage}
         toLanguage={toLanguage}
@@ -205,7 +231,7 @@ export function InsertButtons({ editor }: InsertButtonsProps) {
         onToLanguageChange={setToLanguage}
         onTranslate={handleTranslate}
       >
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <button
             onClick={() => handleAIAction('summarize')}
             className="flex flex-col items-center justify-center p-4 text-gray-700 bg-white border border-gray-100 rounded-lg shadow-sm hover:bg-blue-50 hover:border-blue-200 transition-all"
@@ -234,6 +260,16 @@ export function InsertButtons({ editor }: InsertButtonsProps) {
               <Languages className="h-5 w-5 text-blue-600" />
             </div>
             <span className="font-medium">Translate</span>
+          </button>
+
+          <button
+            onClick={() => handleAIAction('title')}
+            className="flex flex-col items-center justify-center p-4 text-gray-700 bg-white border border-gray-100 rounded-lg shadow-sm hover:bg-blue-50 hover:border-blue-200 transition-all"
+          >
+            <div className="bg-blue-100 p-3 rounded-full mb-3">
+              <Tag className="h-5 w-5 text-blue-600" />
+            </div>
+            <span className="font-medium">Generate Title</span>
           </button>
         </div>
       </AiDialog>

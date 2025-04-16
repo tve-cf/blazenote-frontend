@@ -16,7 +16,8 @@ interface DialogProps {
   onCopy?: () => void;
   onInsert?: () => void;
   onCreateNew?: () => void;
-  selectedAction?: 'summarize' | 'paraphrase' | 'translate' | null;
+  onApplyTitle?: () => void;
+  selectedAction?: 'summarize' | 'paraphrase' | 'translate' | 'title' | null;
   fromLanguage?: string;
   toLanguage?: string;
   onFromLanguageChange?: (lang: string) => void;
@@ -35,6 +36,7 @@ export function AiDialog({
   onCopy,
   onInsert,
   onCreateNew,
+  onApplyTitle,
   selectedAction,
   fromLanguage,
   toLanguage,
@@ -56,6 +58,28 @@ export function AiDialog({
     { value: 'japanese', name: 'Japanese' },
     { value: 'korean', name: 'Korean' }
   ];
+
+  // Clean up result content by removing unwanted whitespaces and empty paragraph tags
+  const cleanResult = (content: string): string => {
+    if (!content) return '';
+
+    // Trim whitespace
+    let cleaned = content.trim();
+
+    // Remove empty paragraph tags at the beginning
+    cleaned = cleaned.replace(/^(<p>\s*<\/p>)+/g, '');
+    cleaned = cleaned.replace(/^(<p>\s*)+/g, '<p>');
+
+    // Remove excessive newlines at the beginning
+    cleaned = cleaned.replace(/^\n+/, '');
+    cleaned = cleaned.replace(/<p>&nbsp;<\/p>/g, '');
+
+    // AI system messages
+    cleaned = cleaned.replace(/assistant<|header_end|>/, '');
+    cleaned = cleaned.replace(/<\|.*?\|>/g, '');
+
+    return cleaned;
+  };
 
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
@@ -144,34 +168,54 @@ export function AiDialog({
           {result && (
             <div className="space-y-6">
               <div className="bg-gray-50 rounded-lg p-6 border border-gray-100 max-h-[400px] overflow-y-auto">
-                <p className="text-gray-700 whitespace-pre-wrap break-words leading-relaxed">
-                  {result}
-                </p>
+                <div
+                  className="text-gray-700 prose max-w-none break-words leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: cleanResult(result) }}
+                />
               </div>
 
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={onCopy}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <Copy className="h-4 w-4" />
-                  Copy
-                </button>
-                <button
-                  onClick={onInsert}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <Check className="h-4 w-4" />
-                  Insert
-                </button>
-                <button
-                  onClick={onCreateNew}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <Plus className="h-4 w-4" />
-                  New Note
-                </button>
-              </div>
+              {selectedAction === 'title' ? (
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={onCopy}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <Copy className="h-4 w-4" />
+                    Copy
+                  </button>
+                  <button
+                    onClick={onApplyTitle}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Check className="h-4 w-4" />
+                    Apply Title
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={onCopy}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <Copy className="h-4 w-4" />
+                    Copy
+                  </button>
+                  <button
+                    onClick={onInsert}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Check className="h-4 w-4" />
+                    Insert
+                  </button>
+                  <button
+                    onClick={onCreateNew}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <Plus className="h-4 w-4" />
+                    New Note
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
