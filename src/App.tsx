@@ -11,7 +11,7 @@ function AppContent() {
     searchQuery,
     setSearchQuery,
     setSelectedNoteId,
-    createNote,
+    createNote
   } = useNotes();
 
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);

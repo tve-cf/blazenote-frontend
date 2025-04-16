@@ -21,7 +21,7 @@ Before the workshop, make sure you complete the following tasks:
 
 Once you’ve completed the entire checklist, you’re all set for the workshop :tada:
 
-The **In-Workshop Activities** section outlines tasks to be completed <ins>on the day</ins> of the workshop as there will be further information provided that day.  
+The **In-Workshop Activities** section outlines tasks to be completed <ins>on the day</ins> of the workshop as there will be further information provided that day.
 
 ## In-Workshop Activities
 
@@ -36,17 +36,17 @@ The **In-Workshop Activities** section outlines tasks to be completed <ins>on th
 
 1. Install project dependencies - this only required if this is your first time working on the project:
 
-    ```bash
-        npm install
-    ```
+   ```bash
+       npm install
+   ```
 
 1. Start the local server:
 
-    ```bash
-         npm run dev
-    ```
+   ```bash
+        npm run dev
+   ```
 
-    The backend server will be accessible at: http://localhost:5173.
+   The backend server will be accessible at: http://localhost:5173.
 
 ### Deploy app :rocket:
 

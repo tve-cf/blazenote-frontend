@@ -1,5 +1,11 @@
-import React, { createContext, useState, useCallback, useEffect, useContext } from "react";
-import { Note } from "../types";
+import React, {
+  createContext,
+  useState,
+  useCallback,
+  useEffect,
+  useContext
+} from 'react';
+import { Note } from '../types';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -22,7 +28,7 @@ const NotesContext = createContext<NotesContextType | undefined>(undefined);
 export function NotesProvider({ children }: { children: React.ReactNode }) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
 
   const filteredNotes = notes.filter(
     (note) =>
@@ -38,7 +44,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       const notes = await response.json();
       setNotes(notes.length == 0 ? [] : notes);
     };
-    console.log("[Info] API base url: ", BASE_URL)
+    console.log('[Info] API base url: ', BASE_URL);
     // Load notes from DB
     getNotes();
   }, []);
@@ -53,22 +59,22 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
   const createNote = async (title?: string, description?: string) => {
     const newNote: Note = {
       id: crypto.randomUUID(),
-      title: title || "",
-      description: description || "",
+      title: title || '',
+      description: description || '',
       attachments: [],
       createdAt: new Date(),
-      updatedAt: new Date(),
+      updatedAt: new Date()
     };
     setNotes([newNote, ...notes]);
     setSelectedNoteId(newNote.id);
 
     // Save new note into DB
     await fetch(`${BASE_URL}/notes`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(newNote),
       headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
+        'Content-type': 'application/json; charset=UTF-8'
+      }
     });
   };
 
@@ -80,11 +86,11 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
     // Save updated note into DB
     const saveUpdatedNoteIntoDB = async () => {
       await fetch(`${BASE_URL}/notes/${updatedNote.id}`, {
-        method: "PUT",
+        method: 'PUT',
         body: JSON.stringify(updatedNote),
         headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
+          'Content-type': 'application/json; charset=UTF-8'
+        }
       });
     };
     saveUpdatedNoteIntoDB();
@@ -97,7 +103,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
     // Delete attachment from bucket
     const deleteNoteAttachment = async () => {
       await fetch(`${BASE_URL}/files/${noteId}`, {
-        method: "DELETE",
+        method: 'DELETE'
       });
     };
     deleteNoteAttachment();
@@ -105,7 +111,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
     // Delete note from DB
     const deleteNoteFromDB = async () => {
       await fetch(`${BASE_URL}/notes/${noteId}`, {
-        method: "DELETE",
+        method: 'DELETE'
       });
     };
     deleteNoteFromDB();
@@ -133,12 +139,12 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
         // Update the note after successful uploads
         const updatedNote: Note = {
           ...selectedNote,
-          updatedAt: new Date(),
+          updatedAt: new Date()
         };
 
         updateNote(updatedNote);
       } catch (error) {
-        console.error("Error during file upload process:", error);
+        console.error('Error during file upload process:', error);
       }
     },
     [selectedNote]
@@ -147,12 +153,12 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
   // Get pre-signed url
   const getPreSignedUrl = async (file: File) => {
     const response = await fetch(`${BASE_URL}/files/pre-signed-url`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         fileName: file.name,
-        fileType: file.type,
-      }),
+        fileType: file.type
+      })
     });
 
     if (!response.ok) {
@@ -184,9 +190,9 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
   // Upload file using pre-signed URL
   const uploadFileToUrl = async (url: string, file: File): Promise<void> => {
     const uploadResponse = await fetch(url, {
-      method: "PUT",
-      headers: { "Content-Type": file.type },
-      body: file,
+      method: 'PUT',
+      headers: { 'Content-Type': file.type },
+      body: file
     });
 
     if (!uploadResponse.ok) {
@@ -200,12 +206,12 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
     key: string
   ): Promise<void> => {
     const metadataResponse = await fetch(`${BASE_URL}/files/save`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         noteId,
-        objectKey: key,
-      }),
+        objectKey: key
+      })
     });
 
     if (!metadataResponse.ok) {
@@ -224,13 +230,11 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
     updateNote,
     deleteNote,
     handleFileUpload,
-    refreshNotes,
+    refreshNotes
   };
 
   return (
-    <NotesContext.Provider value={value}>
-      {children}
-    </NotesContext.Provider>
+    <NotesContext.Provider value={value}>{children}</NotesContext.Provider>
   );
 }
 
@@ -238,7 +242,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
 export function useNotes() {
   const context = useContext(NotesContext);
   if (context === undefined) {
-    throw new Error("useNotes must be used within a NotesProvider");
+    throw new Error('useNotes must be used within a NotesProvider');
   }
   return context;
-} 
+}

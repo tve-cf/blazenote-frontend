@@ -11,10 +11,7 @@ interface NoteEditorProps {
   onBackClick: () => void;
 }
 
-export function NoteEditor({
-  note,
-  onBackClick,
-}: NoteEditorProps) {
+export function NoteEditor({ note, onBackClick }: NoteEditorProps) {
   const { updateNote, deleteNote, handleFileUpload } = useNotes();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const editorRef = useRef<{ getHTML: () => string } | null>(null);
@@ -58,7 +55,7 @@ export function NoteEditor({
         onDelete={() => deleteNote(note.id)}
         onTranscript={handleTranscript}
       />
-      
+
       <TiptapEditor
         ref={editorRef}
         content={note.description}

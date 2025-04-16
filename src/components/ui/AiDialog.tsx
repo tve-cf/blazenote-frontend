@@ -25,10 +25,10 @@ interface DialogProps {
   onTranslate?: () => void;
 }
 
-export function AiDialog({ 
-  isOpen, 
-  onClose, 
-  title, 
+export function AiDialog({
+  isOpen,
+  onClose,
+  title,
   children,
   isLoading,
   result,
@@ -54,7 +54,7 @@ export function AiDialog({
     { value: 'russian', name: 'Russian' },
     { value: 'chinese', name: 'Chinese' },
     { value: 'japanese', name: 'Japanese' },
-    { value: 'korean', name: 'Korean' },
+    { value: 'korean', name: 'Korean' }
   ];
 
   return (
@@ -78,7 +78,9 @@ export function AiDialog({
         <div className="p-6">
           {!result && !isLoading && !selectedAction && (
             <div className="space-y-4">
-              <p className="text-gray-500 text-sm">Select an AI action to process your note:</p>
+              <p className="text-gray-500 text-sm">
+                Select an AI action to process your note:
+              </p>
               {children}
             </div>
           )}
@@ -87,7 +89,9 @@ export function AiDialog({
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    From
+                  </label>
                   <div className="relative">
                     <select
                       value={fromLanguage}
@@ -104,18 +108,22 @@ export function AiDialog({
                   </div>
                 </div>
                 <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">To</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    To
+                  </label>
                   <div className="relative">
                     <select
                       value={toLanguage}
                       onChange={(e) => onToLanguageChange?.(e.target.value)}
                       className="w-full pl-3 pr-10 py-2 text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
                     >
-                      {languages.filter(lang => lang.value !== 'auto').map((lang) => (
-                        <option key={lang.value} value={lang.value}>
-                          {lang.name}
-                        </option>
-                      ))}
+                      {languages
+                        .filter((lang) => lang.value !== 'auto')
+                        .map((lang) => (
+                          <option key={lang.value} value={lang.value}>
+                            {lang.name}
+                          </option>
+                        ))}
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   </div>
@@ -141,9 +149,11 @@ export function AiDialog({
           {result && (
             <div className="space-y-6">
               <div className="bg-gray-50 rounded-lg p-6 border border-gray-100 max-h-[400px] overflow-y-auto">
-                <p className="text-gray-700 whitespace-pre-wrap break-words leading-relaxed">{result}</p>
+                <p className="text-gray-700 whitespace-pre-wrap break-words leading-relaxed">
+                  {result}
+                </p>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <button
                   onClick={onCopy}
@@ -173,4 +183,4 @@ export function AiDialog({
       </div>
     </div>
   );
-} 
+}
