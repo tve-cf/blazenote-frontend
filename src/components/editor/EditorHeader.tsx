@@ -14,7 +14,7 @@ export function EditorHeader({
   onTitleChange,
   onBackClick,
   onDelete,
-  onTranscript,
+  onTranscript
 }: EditorHeaderProps) {
   const handleDelete = () => {
     if (window.confirm('Are you sure you want to delete this note?')) {

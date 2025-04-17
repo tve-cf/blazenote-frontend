@@ -9,7 +9,7 @@ interface NoteCardProps {
 
 export function NoteCard({ note, isSelected, onClick }: NoteCardProps) {
   const contentPreview = createContentPreview(note.description);
-  
+
   return (
     <div
       onClick={onClick}

@@ -9,19 +9,19 @@ export function useTiptapExtensions() {
   return [
     StarterKit.configure({
       heading: {
-        levels: [1, 2, 3],
-      },
+        levels: [1, 2, 3]
+      }
     }),
     Placeholder.configure({
-      placeholder: 'Write something...',
+      placeholder: 'Write something...'
     }),
     TaskList,
     TaskItem.configure({
-      nested: true,
+      nested: true
     }),
     Image,
     Link.configure({
-      openOnClick: false,
-    }),
+      openOnClick: false
+    })
   ];
 }

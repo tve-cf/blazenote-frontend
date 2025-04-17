@@ -22,17 +22,19 @@ export function NoteList({
   onNewNote,
   selectedNoteId,
   onMenuClick,
-  isVisible,
+  isVisible
 }: NoteListProps) {
   return (
-    <div className={`
+    <div
+      className={`
       fixed md:relative
       w-full md:w-72
       bg-white border-r border-gray-200
       h-screen z-10
       transition-transform duration-300
       ${isVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-    `}>
+    `}
+    >
       <div className="p-4">
         <div className="flex items-center gap-2 mb-4">
           <button
@@ -43,13 +45,13 @@ export function NoteList({
           </button>
           <SearchBar value={searchQuery} onChange={onSearchChange} />
           <button
-            onClick={onNewNote}
+            onClick={() => onNewNote()}
             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
           >
             <Plus className="h-5 w-5" />
           </button>
         </div>
-        
+
         <div className="space-y-2">
           {notes.map((note) => (
             <NoteCard

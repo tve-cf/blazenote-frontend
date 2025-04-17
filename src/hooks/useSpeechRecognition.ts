@@ -7,20 +7,16 @@ interface UseSpeechRecognitionProps {
   language?: string;
 }
 
-export function useSpeechRecognition({ 
-  onTranscript, 
-  language = 'en-US' 
+export function useSpeechRecognition({
+  onTranscript,
+  language = 'en-US'
 }: UseSpeechRecognitionProps) {
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const {
-    currentText,
-    lastActivity,
-    updateTranscription,
-    setFinalTranscript
-  } = useTranscriptionState();
+
+  const { currentText, lastActivity, updateTranscription, setFinalTranscript } =
+    useTranscriptionState();
 
   // Handle silence detection
   useSilenceDetection(isListening, lastActivity, () => {
@@ -34,7 +30,9 @@ export function useSpeechRecognition({
   });
 
   useEffect(() => {
-    setIsSupported('webkitSpeechRecognition' in window || 'SpeechRecognition' in window);
+    setIsSupported(
+      'webkitSpeechRecognition' in window || 'SpeechRecognition' in window
+    );
   }, []);
 
   const startListening = useCallback(() => {
@@ -45,8 +43,9 @@ export function useSpeechRecognition({
 
     setError(null);
     updateTranscription('');
-    
-    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+
+    const SpeechRecognition =
+      window.webkitSpeechRecognition || window.SpeechRecognition;
     const recognition = new SpeechRecognition();
 
     recognition.continuous = true;
@@ -63,9 +62,7 @@ export function useSpeechRecognition({
       const isFinal = event.results[event.resultIndex].isFinal;
 
       if (isFinal) {
-        const cleanText = transcript
-          .replace(/\s+/g, ' ')
-          .trim();
+        const cleanText = transcript.replace(/\s+/g, ' ').trim();
 
         setFinalTranscript(cleanText, () => {
           onTranscript(cleanText + ' ');
@@ -116,6 +113,6 @@ export function useSpeechRecognition({
     error,
     currentText,
     startListening,
-    stopListening,
+    stopListening
   };
 }
