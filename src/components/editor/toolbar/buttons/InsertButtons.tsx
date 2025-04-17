@@ -206,7 +206,7 @@ export function InsertButtons({ editor }: InsertButtonsProps) {
           setAiResult(null);
           setSelectedAction(null);
         }}
-        icon={<Sparkles className="w-4 h-4" />}
+        icon={<Sparkles className="w-4 h-4 text-pink-500" />}
         tooltip="AI Tools (⌘+L)"
       />
 
