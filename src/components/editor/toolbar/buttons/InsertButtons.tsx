@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Editor } from '@tiptap/react';
 import {
-  Image,
+  Image as ImageIcon,
   Link,
   Sparkles,
   FileText,
@@ -29,6 +29,73 @@ interface ImageTransformations {
   quality: number;
 }
 
+// Helper function to transform image using Canvas API
+const transformImage = async (file: File, transformations: ImageTransformations): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      reject(new Error('Could not get canvas context'));
+      return;
+    }
+
+    img.onload = () => {
+      // Set canvas dimensions
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      // Apply transformations
+      ctx.save();
+      
+      // Move to center for rotation
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      
+      // Apply rotation
+      ctx.rotate((transformations.rotate * Math.PI) / 180);
+      
+      // Apply filters
+      ctx.filter = `
+        brightness(${transformations.brightness})
+        contrast(${transformations.contrast})
+        saturate(${transformations.saturation})
+        blur(${transformations.blur}px)
+      `;
+      
+      // Draw image (centered due to translation)
+      ctx.drawImage(img, -img.width / 2, -img.height / 2);
+      
+      ctx.restore();
+
+      // Convert canvas to blob with quality setting
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            // Create new file with transformed image
+            const transformedFile = new File([blob], file.name, {
+              type: file.type,
+              lastModified: Date.now(),
+            });
+            resolve(transformedFile);
+          } else {
+            reject(new Error('Failed to create blob from canvas'));
+          }
+        },
+        file.type,
+        transformations.quality / 100
+      );
+    };
+
+    img.onerror = () => {
+      reject(new Error('Failed to load image'));
+    };
+
+    // Load the image
+    img.src = URL.createObjectURL(file);
+  });
+};
+
 export function InsertButtons({ editor }: InsertButtonsProps) {
   const [isAIDialogOpen, setIsAIDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,42 +114,54 @@ export function InsertButtons({ editor }: InsertButtonsProps) {
     size: string, 
     transformations: ImageTransformations
   ) => {
-    // Here you would typically:
-    // 1. Upload the file to your server
-    // 2. Send it through Cloudflare's image optimization
-    // 3. Get back the optimized URL
-    // For now, we'll use a local URL with CSS transforms
-    const url = URL.createObjectURL(file);
-    
-    // Apply the selected size
-    const sizeMap: { [key: string]: string } = {
-      small: '25%',
-      medium: '50%',
-      large: '75%',
-      original: '100%'
-    };
-    
-    editor
-      .chain()
-      .focus()
-      .setImage({ 
-        src: url,
-        alt: file.name,
-      })
-      .run();
+    try {
+      // Transform the image before uploading
+      const transformedFile = await transformImage(file, transformations);
+      
+      // Create FormData to send the transformed file
+      const formData = new FormData();
+      formData.append('file', transformedFile);
 
-    // Apply transformations after insertion
-    const imageElement = editor.view.dom.querySelector(`img[src="${url}"]`) as HTMLImageElement;
-    if (imageElement) {
-      imageElement.style.width = sizeMap[size];
-      imageElement.style.height = 'auto';
-      imageElement.style.filter = `
-        brightness(${transformations.brightness})
-        contrast(${transformations.contrast})
-        saturate(${transformations.saturation})
-        blur(${transformations.blur}px)
-      `;
-      imageElement.style.transform = `rotate(${transformations.rotate}deg)`;
+      // Upload image to the server
+      const response = await fetch(`${BASE_URL}/images/upload`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+
+      const data = await response.json();
+      const imageUrl = data.url || data.imageUrl; // Handle different response formats
+      
+      // Apply the selected size
+      const sizeMap: { [key: string]: string } = {
+        small: '25%',
+        medium: '50%',
+        large: '75%',
+        original: '100%'
+      };
+      
+      // Insert the image into the editor
+      editor
+        .chain()
+        .focus()
+        .setImage({ 
+          src: imageUrl,
+          alt: file.name,
+        })
+        .run();
+
+      // Apply size styling after insertion
+      const imageElement = editor.view.dom.querySelector(`img[src="${imageUrl}"]`) as HTMLImageElement;
+      if (imageElement) {
+        imageElement.style.width = sizeMap[size];
+        imageElement.style.height = 'auto';
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image. Please try again.');
     }
   };
 
@@ -240,7 +319,7 @@ export function InsertButtons({ editor }: InsertButtonsProps) {
     <>
       <ToolbarButton
         onClick={() => setIsImageDialogOpen(true)}
-        icon={<Image className="w-4 h-4" />}
+        icon={<ImageIcon className="w-4 h-4" />}
         tooltip="Insert Image (⌘+Shift+I)"
       />
       <ToolbarButton
