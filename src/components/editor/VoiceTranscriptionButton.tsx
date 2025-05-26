@@ -20,16 +20,18 @@ interface VoiceTranscriptionButtonProps {
   onTranscript: (text: string) => void;
 }
 
-export function VoiceTranscriptionButton({ onTranscript }: VoiceTranscriptionButtonProps) {
+export function VoiceTranscriptionButton({
+  onTranscript
+}: VoiceTranscriptionButtonProps) {
   const {
     isListening,
     isSupported,
     error,
     currentText,
     startListening,
-    stopListening,
+    stopListening
   } = useSpeechRecognition({
-    onTranscript,
+    onTranscript
   });
 
   if (!isSupported) {
@@ -53,15 +55,13 @@ export function VoiceTranscriptionButton({ onTranscript }: VoiceTranscriptionBut
           <Mic className="h-5 w-5" />
         )}
       </button>
-      
+
       {error && (
         <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-red-50 text-red-600 text-sm px-2 py-1 rounded">
           {error}
         </div>
       )}
-      {isListening && currentText && (
-        <TranscriptionStatus text={currentText} />
-      )}
+      {isListening && currentText && <TranscriptionStatus text={currentText} />}
     </div>
   );
 }

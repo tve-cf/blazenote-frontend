@@ -11,7 +11,7 @@ export function ToolbarButton({
   onClick,
   icon,
   active = false,
-  tooltip,
+  tooltip
 }: ToolbarButtonProps) {
   return (
     <button
