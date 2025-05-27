@@ -133,7 +133,7 @@ export function InsertButtons({ editor }: InsertButtonsProps) {
       }
 
       const data = await response.json();
-      const imageUrl = data.result.variants[0];
+      const imageUrl = data.data.variants[0];
       
       // Apply the selected size
       const sizeMap: { [key: string]: string } = {
