@@ -1,6 +1,4 @@
-import React from 'react';
 import { Editor } from '@tiptap/react';
-import { ToolbarButton } from './ToolbarButton';
 import { ToolbarDivider } from './ToolbarDivider';
 import { TextFormatButtons } from './buttons/TextFormatButtons';
 import { ListButtons } from './buttons/ListButtons';

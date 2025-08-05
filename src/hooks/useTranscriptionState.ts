@@ -10,14 +10,14 @@ export function useTranscriptionState() {
   const [state, setState] = useState<TranscriptionState>({
     currentText: '',
     lastActivity: Date.now(),
-    finalText: '',
+    finalText: ''
   });
 
   const updateTranscription = (text: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       currentText: text,
-      lastActivity: Date.now(),
+      lastActivity: Date.now()
     }));
   };
 
@@ -26,7 +26,7 @@ export function useTranscriptionState() {
       const newState = {
         currentText: '',
         lastActivity: Date.now(),
-        finalText: text,
+        finalText: text
       };
       if (callback) {
         setTimeout(callback, 0);
@@ -37,9 +37,9 @@ export function useTranscriptionState() {
 
   const appendPeriod = () => {
     if (!state.currentText.trim().endsWith('.')) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        currentText: prev.currentText.trim() + '.',
+        currentText: prev.currentText.trim() + '.'
       }));
     }
   };
@@ -50,6 +50,6 @@ export function useTranscriptionState() {
     finalText: state.finalText,
     updateTranscription,
     appendPeriod,
-    setFinalTranscript,
+    setFinalTranscript
   };
 }

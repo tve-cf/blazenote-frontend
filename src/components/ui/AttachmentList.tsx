@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { Image, Paperclip } from "lucide-react";
-import { Attachment } from "../../types";
+import { useEffect, useState } from 'react';
+import { Image, Paperclip } from 'lucide-react';
+import { Attachment } from '../../types';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -13,13 +13,18 @@ export function AttachmentList({ noteId }: AttachmentListProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchPreSignedUrl = async (fileName: string): Promise<string | null> => {
+  const fetchPreSignedUrl = async (
+    fileName: string
+  ): Promise<string | null> => {
     try {
       // Encode the fileName to ensure special characters are safely included in the URL
       const encodedFileName = encodeURIComponent(fileName);
-      const response = await fetch(`${BASE_URL}/files/pre-signed-url/${encodedFileName}`, {
-        method: "GET",
-      });
+      const response = await fetch(
+        `${BASE_URL}/files/pre-signed-url/${encodedFileName}`,
+        {
+          method: 'GET'
+        }
+      );
       if (!response.ok) {
         throw new Error(`Failed to fetch pre-signed URL for ${fileName}`);
       }
@@ -30,7 +35,6 @@ export function AttachmentList({ noteId }: AttachmentListProps) {
       return null;
     }
   };
-  
 
   useEffect(() => {
     const fetchAttachments = async () => {
@@ -51,18 +55,20 @@ export function AttachmentList({ noteId }: AttachmentListProps) {
               return {
                 id: file.id,
                 name: file.name,
-                url: url || "",
-                type: "application/octet-stream", // Might need to adjust this based on file
+                url: url || '',
+                type: 'application/octet-stream' // Might need to adjust this based on file
               };
             })
           );
 
           setAttachments(fetchedAttachments);
         } else {
-          console.log("No attachment found");
+          console.log('No attachment found');
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred");
+        setError(
+          err instanceof Error ? err.message : 'An unknown error occurred'
+        );
       } finally {
         setLoading(false);
       }
@@ -87,7 +93,7 @@ export function AttachmentList({ noteId }: AttachmentListProps) {
             rel="noopener noreferrer"
             className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg text-sm text-gray-700 hover:bg-gray-100"
           >
-            {attachment.type.startsWith("image/") ? (
+            {attachment.type.startsWith('image/') ? (
               <Image className="h-4 w-4" />
             ) : (
               <Paperclip className="h-4 w-4" />
