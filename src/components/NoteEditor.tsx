@@ -1,9 +1,9 @@
-import { ChangeEvent, useRef } from 'react';
-import { Paperclip } from 'lucide-react';
-import { Note } from '../types';
-import { AttachmentList } from './ui/AttachmentList';
-import { TiptapEditor } from './editor/TiptapEditor';
-import { EditorHeader } from './editor/EditorHeader';
+import { ChangeEvent, useRef } from "react";
+import { Paperclip } from "lucide-react";
+import { Note } from "../types";
+import { AttachmentList } from "./ui/AttachmentList";
+import { TiptapEditor } from "./editor/TiptapEditor";
+import { EditorHeader } from "./editor/EditorHeader";
 
 interface NoteEditorProps {
   note: Note | null;
@@ -48,7 +48,7 @@ export function NoteEditor({
   const handleTranscript = (text: string) => {
     if (editorRef.current) {
       const currentContent = editorRef.current.getHTML();
-      const newContent = currentContent + (currentContent ? ' ' : '') + text;
+      const newContent = currentContent + (currentContent ? " " : "") + text;
       handleContentChange(newContent);
     }
   };
@@ -62,14 +62,14 @@ export function NoteEditor({
         onDelete={() => onDeleteNote(note.id)}
         onTranscript={handleTranscript}
       />
-      
+
       <TiptapEditor
         ref={editorRef}
         content={note.description}
         onChange={handleContentChange}
       />
       {/* TODO: Buggy */}
-      {/* <AttachmentList noteId={note.id} /> */}
+      <AttachmentList noteId={note.id} />
 
       <div className="p-4 border-t border-gray-200">
         <input
