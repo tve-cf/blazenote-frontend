@@ -30,7 +30,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredNotes = notes.filter(
+  const filteredNotes = (notes ?? []).filter(
     (note) =>
       note?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       note?.description?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -41,8 +41,9 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const getNotes = async () => {
       const response = await fetch(`${BASE_URL}/notes`);
-      const notes = await response.json();
-      setNotes(notes.length == 0 ? [] : notes);
+      const data = await response.json();
+      const notesArray = Array.isArray(data) ? data : (data?.notes || []);
+      setNotes(notesArray);
     };
     console.log('[Info] API base url: ', BASE_URL);
     // Load notes from DB
@@ -52,8 +53,9 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
   // Force reload notes from DB
   const refreshNotes = async () => {
     const response = await fetch(`${BASE_URL}/notes`);
-    const notes = await response.json();
-    setNotes(notes.length == 0 ? [] : notes);
+    const data = await response.json();
+    const notesArray = Array.isArray(data) ? data : (data?.notes || []);
+    setNotes(notesArray);
   };
 
   const createNote = async (title?: string, description?: string) => {
