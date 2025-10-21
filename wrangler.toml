@@ -1,5 +1,12 @@
 name = "blazenote-frontend"
+main = "src/index.ts"
 compatibility_date = "2025-10-21"
+compatibility_flags = ["nodejs_compat"]
 
 [assets]
+directory = "./dist"
+binding = "ASSETS"
 not_found_handling = "single-page-application"
+
+[observability.logs]
+enabled = true
