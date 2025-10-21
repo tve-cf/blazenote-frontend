@@ -1,5 +1,5 @@
 name = "blazenote-frontend"
-main = "src/index.ts"
+main = "src/main.tsx"
 compatibility_date = "2025-10-21"
 compatibility_flags = ["nodejs_compat"]
 
