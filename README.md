@@ -37,21 +37,46 @@ The **In-Workshop Activities** section outlines tasks to be completed <ins>on th
 1. Install project dependencies - this only required if this is your first time working on the project:
 
    ```bash
-       npm install
+   npm install
    ```
 
-1. Start the local server:
+2. Start the local development server:
 
    ```bash
-        npm run dev
+   npm run dev
    ```
 
-   The backend server will be accessible at: http://localhost:5173.
+   The app will be accessible at: http://localhost:5173
+   
+   This runs Vite with the Cloudflare plugin, which integrates the Workers runtime directly into the Vite dev server. You get hot module reloading and the Workers runtime in a single command.
 
-### Deploy app :rocket:
+### Deploy app
 
-As this repo will be integrated with Cloudflare Pages, you can deploy the latest changes by publishing your commits:
+This app is configured to deploy to Cloudflare Workers. You have two deployment options:
 
-```bash
-    git push origin <branch-name>
-```
+#### Option 1: Deploy using Wrangler CLI
+
+1. (Optional) Preview your build locally with the Workers runtime:
+
+   ```bash
+   npm run preview
+   ```
+
+2. Build and deploy the app:
+
+   ```bash
+   npm run deploy
+   ```
+
+   Or manually:
+
+   ```bash
+   npm run build
+   wrangler deploy
+   ```
+
+3. Your app will be deployed to `https://blazenote-frontend.<your-subdomain>.workers.dev`
+
+#### Option 2: Deploy via Git Integration
+
+You can also set up automatic deployments through Cloudflare Workers CI/CD by connecting your GitHub repository to Cloudflare.

@@ -1,0 +1,5 @@
+name = "blazenote-frontend"
+compatibility_date = "2025-10-21"
+
+[assets]
+not_found_handling = "single-page-application"
